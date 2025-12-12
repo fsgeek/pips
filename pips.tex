@@ -1,0 +1,217 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{authblk}
+
+% Metadata -------------------------------------------------------
+
+\title{Input Provenance as a Structural Defense Against AI-Generated\\ 
+       Slop in Scholarly Publishing}
+
+\author[1]{\textbf{[Your Name Placeholder]}}
+\affil[1]{University of British Columbia \\ 
+\texttt{[your-email]}}
+\date{\today}
+
+% Document -------------------------------------------------------
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The rapid adoption of large language models has enabled the mass 
+production of superficially plausible but substantively hollow research 
+papers---a phenomenon increasingly referred to as \emph{AI slop}. These 
+artifacts often include hallucinated citations, fabricated results, and 
+generic low-rigor prose. Existing defenses focus primarily on evaluating 
+\emph{outputs}, an approach whose effectiveness declines as text 
+generation systems improve.
+
+This position paper argues that sustainable mitigation requires shifting 
+evaluation from outputs to \emph{inputs}. Authentic research is 
+developmental: drafts evolve through restructuring, refinement, 
+literature integration, and feedback over days to months. This iterative 
+trajectory produces provenance traces that AI-generated slop lacks.
+
+We propose the \textbf{Paper Input Provenance Standard (PIPS)}, a 
+lightweight, cryptographically verifiable mechanism for submitting 
+version-control development histories alongside manuscripts. PIPS 
+leverages common tools (Git repositories, Merkle-tree commit DAGs, and 
+RFC~3161 timestamping) to create tamper-evident provenance bundles that 
+reflect genuine scholarly labour. Integrating PIPS into conference 
+submission systems such as HotCRP can raise the cost of generating slop 
+while minimally burdening legitimate authors.
+
+We present the design, threat model, and rationale for provenance-based 
+scholarly authentication and argue that process-level validation is 
+necessary to restore epistemic integrity in modern academic publishing.
+\end{abstract}
+
+\section{Introduction}
+
+Academic publishing faces a structural crisis. Large language models 
+(LLMs) now enable the rapid creation of superficially coherent---yet 
+substantively hollow---manuscripts. These ``AI slop'' submissions often:
+
+\begin{itemize}[nosep]
+    \item mimic academic style without genuine contribution,
+    \item include hallucinated citations or results,
+    \item are produced in minutes rather than weeks or months,
+    \item overwhelm reviewer capacity and degrade venue quality.
+\end{itemize}
+
+Most proposed defenses attempt to detect LLM-generated \emph{text}. 
+However, output-level discrimination is increasingly unreliable as 
+generative models improve. This mirrors the collapse of discriminators in 
+classical GAN settings.
+
+Our central thesis is that detection must shift from evaluating 
+\emph{outputs} to examining the \emph{process} that produced them. 
+Legitimate scholarship exhibits a developmental trajectory. AI slop does 
+not.
+
+\section{Why Output-Level Defenses Fail}
+
+Output-focused approaches suffer from structural limitations:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Co-evolution}: Improvements in generative models 
+          rapidly erode detector performance.
+    \item \textbf{Low cost}: Text generation is cheap; reviewer attention 
+          is scarce.
+    \item \textbf{False positives}: Authoring assistance tools blur 
+          stylistic boundaries.
+    \item \textbf{Lack of ontogeny}: PDFs provide no insight into the 
+          manuscript's intellectual development.
+\end{enumerate}
+
+Thus, systems that evaluate only the finished artifact operate without 
+access to the most informative signal: the provenance of its creation.
+
+\section{Research as Trajectory}
+
+Scholarly writing unfolds through iterative refinement. Version-control 
+histories for legitimate work typically include:
+
+\begin{itemize}[nosep]
+    \item early outlines or partial fragments,
+    \item restructuring of sections,
+    \item incremental integration of related work,
+    \item figure generation scripts and data updates,
+    \item revisions over days or weeks,
+    \item exploratory branches later merged or abandoned.
+\end{itemize}
+
+These properties are costly to fabricate convincingly. They encode a 
+rich, high-entropy developmental signal that distinguishes authentic 
+research labour from low-effort generative output.
+
+\section{The Paper Input Provenance Standard (PIPS)}
+
+PIPS formalizes the submission of development histories.
+
+\subsection{Design Goals}
+
+\begin{itemize}[nosep]
+    \item Lightweight and compatible with existing author workflows.
+    \item Tamper-evident but not privacy-invasive.
+    \item Content-agnostic: validates process, not style.
+    \item Easy for submission systems to verify.
+\end{itemize}
+
+\subsection{Specification Overview}
+
+A PIPS bundle includes:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Repository Snapshot}: A Git archive containing manuscript 
+          source, figures, bibliography, and auxiliary materials.
+    \item \textbf{Provenance Manifest}: A signed metadata file listing:
+          \begin{itemize}[nosep]
+              \item Merkle root of the commit DAG,
+              \item commit timestamps and parent relationships,
+              \item author-provided signatures,
+              \item RFC~3161 timestamp tokens.
+          \end{itemize}
+    \item \textbf{Submission Envelope}: A single compressed file (e.g., 
+          \texttt{.pips}) submitted alongside the PDF.
+\end{enumerate}
+
+\subsection{Cryptographic Guarantees}
+
+Git commit hashes establish integrity; RFC~3161 timestamps prevent 
+retroactive forgery; Merkle-DAG structure ensures lineage consistency. 
+Simulating months of realistic revision becomes expensive and detectable.
+
+\section{Integrating PIPS With HotCRP}
+
+HotCRP is a widely used conference management system, particularly within 
+computer science. Integrating PIPS requires only:
+
+\begin{enumerate}[nosep]
+    \item an optional field for uploading PIPS bundles,
+    \item automated verification tools,
+    \item a reviewer-facing visualization of commit activity.
+\end{enumerate}
+
+Initial deployment may be optional; later phases can require provenance 
+for empirical or full-length papers.
+
+\section{Threat Model and Limitations}
+
+\subsection{Threats}
+
+\begin{itemize}[nosep]
+    \item automated fabrication of commit histories,
+    \item sparse legitimate histories from authors who draft offline,
+    \item privacy concerns regarding early drafts or notes.
+\end{itemize}
+
+\subsection{Asymmetric Cost}
+
+The key defense is asymmetry: compliance is inexpensive for legitimate 
+authors but requires substantial effort for slop generators. Fabricating 
+months of realistic provenance is nontrivial.
+
+\section{Related Work}
+
+Relevant threads include reproducibility and open science pipelines, 
+software supply-chain provenance (e.g., TUF, in-toto, Sigstore), 
+pedagogical research on process-based assessment, and emerging discussion 
+of AI-generated academic content. To our knowledge, no prior work proposes 
+provenance-based structural defenses against AI-generated slop.
+
+\section{Future Directions}
+
+Potential extensions include:
+
+\begin{itemize}[nosep]
+    \item automated provenance scoring,
+    \item semantic trajectory analysis,
+    \item integration with Jupyter-based research workflows,
+    \item community standards for empirical reproducibility.
+\end{itemize}
+
+\section{Conclusion}
+
+Output-level detection of AI-generated slop is not sustainable. A 
+provenance-based approach restores the asymmetry between genuine scholarly 
+labour and cheaply generated text. By embedding development trajectories 
+into submission workflows through lightweight cryptographic provenance, 
+the research community can strengthen epistemic integrity at a moment of 
+accelerating generative automation.
+
+\bibliographystyle{plain}
+\bibliography{pips}
+
+\end{document}
+
